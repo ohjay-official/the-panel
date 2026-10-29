@@ -11,7 +11,7 @@ export default function Nav() {
         Method
       </Link>
       <a href="https://github.com/ohjay-official/the-panel">Source</a>
-      <Link href="/panel" className="nav-cta" aria-current={path === '/panel' ? 'page' : undefined}>
+      <Link href="/panel" className="btn nav-cta" aria-current={path === '/panel' ? 'page' : undefined}>
         Score a project
       </Link>
     </nav>

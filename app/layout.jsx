@@ -5,8 +5,7 @@ import Mark from '../components/Mark.jsx';
 import Preloader from '../components/Preloader.jsx';
 // Fonts ship inside the app bundle (Fontsource), so visitors' browsers never contact Google
 // and the build never depends on Google's font servers.
-import '@fontsource-variable/public-sans';
-import '@fontsource-variable/space-grotesk';
+import '@fontsource-variable/inter-tight';
 import '@fontsource-variable/jetbrains-mono';
 
 const SITE = process.env.SITE_URL || 'https://the-panel-eta.vercel.app';
@@ -23,11 +22,10 @@ export const metadata = {
   },
 };
 
-export const viewport = { width: 'device-width', initialScale: 1, themeColor: '#0b0f0e' };
+export const viewport = { width: 'device-width', initialScale: 1, themeColor: '#f2f0ec' };
 
-// Runs before paint: marks that JavaScript is on (so scroll reveals can start hidden),
-// and after the intro has played, lets later in-site visits skip the intro delay.
-const BOOT = "document.documentElement.classList.add('js');setTimeout(function(){document.documentElement.setAttribute('data-loaded','1')},1800)";
+// Runs before paint: marks that JavaScript is on, so the loader shows and scroll reveals can start hidden.
+const BOOT = "document.documentElement.classList.add('js')";
 
 export default function RootLayout({ children }) {
   return (

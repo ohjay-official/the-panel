@@ -28,7 +28,7 @@ const JUDGES = [
   ['Aditya Sahu', 'TME, Jetson Platform', 'NVIDIA'],
   ['Sayali Kandarkar', 'Senior AI/ML Engineer', 'NVIDIA'],
 ];
-const COLOR = { NVIDIA: '#76b900', Nebius: '#e8edea', Tavily: '#7b90ff' };
+const COLOR = { NVIDIA: '#76b900', Nebius: '#0d0c0b', Tavily: '#2a44c9' };
 const count = (c) => JUDGES.filter((j) => j[2] === c).length;
 
 export default function JudgesBand() {
@@ -79,7 +79,7 @@ export default function JudgesBand() {
   }, []);
 
   return (
-    <section className="band" ref={ref} aria-labelledby="band-title">
+    <section className="band" id="judges" ref={ref} aria-labelledby="band-title">
       <p className="band-word" aria-hidden="true">
         PANEL
       </p>
@@ -91,7 +91,7 @@ export default function JudgesBand() {
             </h2>
             <p>The full Devpost list. The Panel builds a profile for each one you seat.</p>
           </div>
-          <ul className="seats" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+          <ul className="seats">
             {JUDGES.map(([name, title, co], i) => (
               <li key={name} className="seat" style={{ '--i': i, '--c': COLOR[co] }}>
                 <b>{name}</b>

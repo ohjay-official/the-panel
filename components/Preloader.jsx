@@ -1,18 +1,37 @@
-// First-load intro: the brand grid fills cell by cell, then the sheet lifts away.
-// Pure CSS, so it finishes on its own even before JavaScript runs. It lives in the root layout,
-// which stays mounted during in-site navigation, so it only plays on a full page load.
+// First-load screen. The bar and percentage follow real loading milestones:
+// the document parsed, the fonts ready, and every asset loaded. A short script right
+// after this markup drives it, so it works before React has started.
+const BOOT_JS = `(function(){
+var b=document.getElementById('boot'),bar=document.getElementById('bootBar'),pct=document.getElementById('bootPct');
+if(!b||!bar||!pct)return;
+var target=0.12,shown=0,finished=false;
+function set(t){if(t>target)target=t;}
+if(document.readyState!=='loading')set(0.4);else document.addEventListener('DOMContentLoaded',function(){set(0.4);});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){set(0.75);});else set(0.75);
+if(document.readyState==='complete')set(1);else window.addEventListener('load',function(){set(1);});
+setTimeout(function(){set(1);},6000);
+function tick(){
+  shown+=(target-shown)*0.14; if(target-shown<0.004)shown=target;
+  bar.style.transform='scaleX('+shown+')';
+  pct.textContent='LOADING '+Math.round(shown*100)+'%';
+  if(shown>=1&&!finished){finished=true;setTimeout(function(){b.classList.add('done');document.documentElement.setAttribute('data-loaded','1');},280);return;}
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+})();`;
+
 export default function Preloader() {
-  const order = [0, 1, 2, 5, 4, 3, 6, 7, 8];
   return (
-    <div className="preloader" aria-hidden="true">
-      <div className="preloader-inner">
-        <div className="preloader-grid">
-          {Array.from({ length: 9 }, (_, i) => (
-            <span key={i} style={{ animationDelay: `${order.indexOf(i) * 70}ms` }} className={i === 8 ? 'blue' : i === 4 ? 'white' : ''} />
-          ))}
+    <>
+      <div className="boot" id="boot" aria-hidden="true" suppressHydrationWarning>
+        <div className="bar">
+          <i id="bootBar" suppressHydrationWarning />
         </div>
-        <div className="preloader-word">The Panel</div>
+        <p id="bootPct" suppressHydrationWarning>
+          LOADING 0%
+        </p>
       </div>
-    </div>
+      <script dangerouslySetInnerHTML={{ __html: BOOT_JS }} />
+    </>
   );
 }
