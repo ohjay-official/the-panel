@@ -2,6 +2,7 @@ import './globals.css';
 import Link from 'next/link';
 import Nav from '../components/Nav.jsx';
 import Mark from '../components/Mark.jsx';
+import Preloader from '../components/Preloader.jsx';
 import { Public_Sans } from 'next/font/google';
 
 // Self-hosted at build time, so visitors' browsers never contact Google.
@@ -25,8 +26,11 @@ export const viewport = { width: 'device-width', initialScale: 1, themeColor: '#
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={font.variable}>
+    <html lang="en" className={font.variable} suppressHydrationWarning>
       <body>
+        <Preloader />
+        {/* After the intro has played, later in-site visits to the home page skip the intro delay. */}
+        <script dangerouslySetInnerHTML={{ __html: "setTimeout(function(){document.documentElement.setAttribute('data-loaded','1')},1600)" }} />
         <a className="visually-hidden" href="#main">
           Skip to content
         </a>
