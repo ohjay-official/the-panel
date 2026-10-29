@@ -2,115 +2,100 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**Know your hackathon score before the judges do.**
+The Panel shows how each judge is likely to score your hackathon project before you submit it.
 
-You paste a hackathon (or bounty) link and your project. The Panel then does five things:
+Paste the event link and your project. The Panel reads the rules, looks up the organizer's past winners, researches each judge, and runs every judge as a separate NVIDIA Nemotron agent that scores you on the event's own criteria. A moderator model settles the disagreements, predicts a score, and ranks the changes most likely to raise it.
 
-1. **Reads** the event with Tavily: rules, tracks, criteria, prizes and the judge list.
-2. **Researches** every judge on the live web and builds a cited profile of what they reward.
-3. **Simulates** each judge as an NVIDIA Nemotron agent that scores you against the official criteria. Each judge can search the web to check your claims or test your originality.
-4. **Moderates**: a Nemotron Ultra moderator settles the disagreements between judges and predicts your score.
-5. **Hands you** a ranked fix list, plus a receipt showing what every model call cost.
+Built for the **Nebius x NVIDIA Global AI Hackathon**, Best Apps and Agents track.
 
-Built for the **Nebius x NVIDIA Global AI Hackathon** (Best Apps and Agents track).
+- **Live site:** https://the-panel-eta.vercel.app
+- **Demo video:** _link added at submission_
 
-**Live demo:** _add Vercel URL_ · **Demo video:** _add YouTube URL_
+## Why I built it
 
----
+I enter a lot of hackathons and bounties. I'm a technical writer and bounty hunter in Nigeria. Before this hackathon I wanted to know who the 23 judges were and what they had rewarded before. Getting that answer took hours of reading talks, posts and old winner lists. The Panel does that reading and turns it into a scorecard, so you can fix the weak spots before the deadline.
 
-## Why this exists
+## What a run does
 
-Thousands of builders enter hackathons and bounty programs every month. Most lose for reasons they could have fixed in an hour:
+1. **Reads the event.** Tavily `/extract` pulls the page. Nemotron Nano extracts rules, tracks, criteria, prizes and judges. If judges or criteria are missing, Tavily `/crawl` searches the rest of the site.
+2. **Reads your project.** Tavily `/extract` on your repo and demo links, plus your description.
+3. **Looks up past winners.** Tavily `/search` for the organizer's earlier winners. Nano keeps only winners a source actually names and links each to its source.
+4. **Researches each judge.** One Tavily `/search` per judge. Nano writes a short, cited profile of what they are likely to reward.
+5. **Scores.** Each judge is a separate agent on the mid-size Nemotron model. It scores every official criterion from 1 to 10 and can call a `web_search` tool (Tavily) up to twice to check a claim or test originality. The model decides when to search.
+6. **Settles.** The moderator compares the judges, writes out where they disagreed, predicts a score out of 100, compares you with the past winners, and ranks fixes by impact against effort.
 
-- a requirement they missed
-- a judge's priority they never knew about
-- a demo that never states the one number the sponsor cares about
-
-Before entering this hackathon, I spent hours by hand researching 23 judges and past winners. I'm a Web3 technical writer and bounty hunter, ranked #1 in content for Superteam Nigeria. The Panel does that research in about two minutes, for a few cents.
+Every step streams to the page as it happens.
 
 ## How it uses Nemotron on Nebius Token Factory
 
-Every model call goes to **Nebius Token Factory** through its OpenAI-compatible API (`https://api.tokenfactory.nebius.com/v1`). Each Nemotron tier gets the job it is best at:
+| Tier | Direct Token Factory model | Job |
+|---|---|---|
+| Small | `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B` | Extract the brief, judges and past winners. Write judge profiles. Repair broken JSON. |
+| Mid-size | `nvidia/nemotron-3-super-120b-a12b` | One agent per judge, with tool calls. |
+| Moderator | `nvidia/Nemotron-3-Ultra-550b-a55b` | Reconcile the panel, predict the score, rank fixes. |
 
-| Tier | Model ID | Job in The Panel | Why this model |
-|---|---|---|---|
-| Fast | `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B` | Extract the brief, criteria and judges from messy pages. Build judge profiles from search results. Repair broken JSON. | High-volume structured extraction. This is the cheapest tier and is fast enough to keep the UI live. |
-| Mid | `nvidia/nemotron-3-super-120b-a12b` | One agent per judge. Scores against the official criteria and calls the `web_search` tool to check claims or originality. | Built for multi-agent, tool-calling work. The judges run 3 at a time. |
-| Heavy | `nvidia/Nemotron-3-Ultra-550b-a55b` | The moderator. Reconciles the judges, writes the debate, predicts the score and ranks the fixes. | The one step that needs serious reasoning over all the other outputs, so it is the only Ultra call per run. |
+Every call records tokens in and out, time, and cost at the per-token price. The cost table at the end of a run also shows what the same run would cost if every call used the top tier.
 
-**Access note.** Token Factory requires billing details before issuing an API key, and Nigeria (where I live) isn't in its billing country list, so I couldn't get a direct key. The app therefore supports two routes to the same Nebius-hosted models:
+### Access note
 
-- **Direct:** set `NEBIUS_API_KEY` and calls go to `api.tokenfactory.nebius.com`. The model IDs are in the table above.
-- **Via OpenRouter, Nebius-only:** set `OPENROUTER_API_KEY`. Every request is pinned to OpenRouter's **Nebius** provider with `allow_fallbacks: false`, and the app rejects any response not served by Nebius. On this route, the models Nebius serves there are `nvidia/nemotron-3-nano-30b-a3b` (fast tier) and `nvidia/nemotron-3.5-super-vl` (judges and moderator). Ultra isn't offered by Nebius on OpenRouter.
+Token Factory asks for billing details before it issues an API key, and Nigeria, where I live, is not in its billing country list. So the app supports two routes to the same Nebius-hosted models:
 
-The live demo uses the OpenRouter route. With a direct key, the app switches to the direct route automatically.
+- **Direct:** set `NEBIUS_API_KEY`. Calls go to `https://api.tokenfactory.nebius.com/v1` with the models above.
+- **Through OpenRouter, Nebius only:** set `OPENROUTER_API_KEY`. Every request is pinned to OpenRouter's Nebius provider with `allow_fallbacks: false`, and the app rejects any response not served by Nebius. On this route Nebius offers `nvidia/nemotron-3-nano-30b-a3b` for the small tier and `nvidia/nemotron-3.5-super-vl` for the judges and moderator. Ultra is not offered there.
 
-Every call is metered: tokens in and out, latency, and cost from the Token Factory per-token price. The **Receipt** panel then compares what you actually paid against what the same run would cost if every call used Ultra.
+With a direct key set, the app uses the direct route automatically.
 
-**Measured on a real run:** _fill in after first live run: total $, Ultra-only $, % saved, seconds end to end_
+## The site
 
-## How it uses Tavily
-
-| Endpoint | Where |
+| Page | What it is |
 |---|---|
-| `/extract` | Reads the hackathon page, plus your repo and demo links. |
-| `/crawl` | Used only if the page doesn't list judges or criteria. The agent then crawls the site with instructions to find them. |
-| `/search` | Runs once per judge to research their public footprint. Every claim in a profile links to its source. |
-| `/search` as a **tool** | Each judge agent decides on its own whether to search. Examples: "does a tool like this already exist?" or "is this claim true?" The search is never hard-coded. |
+| `/` | What The Panel does, with the real empty rubric for this hackathon |
+| `/panel` | The tool |
+| `/method` | Every step, which model runs it, how scores are set, and the limits |
+| `/privacy` | What happens to what you enter (nothing is stored) |
+| `/terms` | Terms of use |
 
-## Architecture
+## Run it yourself
 
-```
-Browser ──POST /api/panel──▶ Next.js route (Vercel, streaming NDJSON)
-                                 │
-   1. Tavily /extract (event) ──▶ Nemotron Nano: brief, criteria, judges
-        └─ thin page? ──▶ Tavily /crawl ──▶ Nano re-extract
-   2. Tavily /extract (project)          ┐ run in parallel
-   3. Tavily /search × judges ──▶ Nano   ┘ cited profiles
-   4. Nemotron Super judge agents (×N, tool: web_search ──▶ Tavily)
-   5. Nemotron Ultra moderator ──▶ score, debate, ranked fixes
-                                 │
-                     every step streams to the UI live, with cost metering
-```
-
-## Run it yourself (5 minutes)
-
-1. Get a Nebius Token Factory API key at [tokenfactory.nebius.com](https://tokenfactory.nebius.com) and a Tavily API key at [app.tavily.com](https://app.tavily.com).
-2. If you can't get billing on Token Factory, use an [OpenRouter](https://openrouter.ai) key instead (`OPENROUTER_API_KEY`). It is pinned to Nebius.
-3. Clone the repo and install:
+1. Get a Tavily key at [app.tavily.com](https://app.tavily.com) and either a Token Factory key at [tokenfactory.nebius.com](https://tokenfactory.nebius.com) or an [OpenRouter](https://openrouter.ai) key.
+2. Clone and install:
    ```bash
    git clone https://github.com/ohjay-official/the-panel && cd the-panel
    npm install
-   cp .env.example .env.local   # paste your two keys
+   cp .env.example .env.local   # add your keys
    npm run dev                  # http://localhost:3000
    ```
-4. To try it with no API calls at all, run `npm run mock`, or just leave the keys out (it falls back to demo mode).
+3. With no keys, the app runs in **sample mode**: it uses built-in placeholder data and labels every result as sample data.
 
-**Deploying to Vercel:** import the repo, then add `TAVILY_API_KEY` and either `NEBIUS_API_KEY` or `OPENROUTER_API_KEY` as environment variables. No other configuration is needed. The API route allows up to 300 seconds per run.
+**Deploy on Vercel:** import the repo and add `TAVILY_API_KEY` plus either `NEBIUS_API_KEY` or `OPENROUTER_API_KEY`. The API route allows up to 300 seconds per run.
 
-**Config:** you can override model IDs (`MODEL_FAST`, `MODEL_MID`, `MODEL_HEAVY`), prices (`PRICE_*`), the rate limit (`RUNS_PER_HOUR`) and an optional `RUN_PASSCODE`. See `.env.example`.
+Optional settings in `.env.example`: model IDs (`MODEL_FAST`, `MODEL_MID`, `MODEL_HEAVY`), prices (`PRICE_*`), runs per hour per IP (`RUNS_PER_HOUR`), and a `RUN_PASSCODE`.
 
-## Ethics and limits
+## Limits
 
-- Judges are **simulations** built only from public professional information, and every evidence line links to its source. They are not the real people, and nothing here is endorsed by them.
-- **Role-only mode** drops all names and simulates "a DevRel lead at X" instead.
-- Predictions are a sharp second opinion, not a guarantee. Thin public footprints are flagged as low confidence.
-- The judges score only what your submission shows. That is the point.
+- Judges are simulations built from public information. They are not the real people, and nothing here is endorsed by them. You can switch to roles instead of names.
+- Thin public footprints produce thin profiles, and those are marked.
+- The tool has not yet been tested against the published results of a past hackathon, so treat the predicted score as a second opinion.
+- It only scores what you show it.
 
 ## Project structure
 
 ```
-app/page.jsx            UI (streams the session live)
-app/api/panel/route.js  Streaming endpoint, validation, rate limit
-lib/pipeline.js         The five-stage agent pipeline
-lib/llm.js              Token Factory client, Nemotron tiers, cost ledger
-lib/tavily.js           Tavily extract / crawl / search
-lib/mock.js             Offline mock for MOCK=1
+app/                 Pages: home, panel, method, privacy, terms
+app/api/panel        Streaming endpoint, input checks, rate limit
+app/api/config       Which models and keys the server has
+components/          Score matrix, the tool UI, navigation
+lib/pipeline.js      The run: event, project, winners, judges, scoring, moderator
+lib/llm.js           Token Factory or OpenRouter (Nebius only), model tiers, cost ledger
+lib/tavily.js        Tavily extract, crawl and search
+lib/mock.js          Sample mode data
 ```
 
-## Feedback on Nebius Token Factory and NVIDIA Nemotron
+## Feedback on Nebius Token Factory and NVIDIA tools
 
-_To fill in from the build: specific friction, with model ID, request and expected vs actual result._
+1. **Billing countries exclude eligible hackathon participants.** The hackathon is open to Nigeria, but Token Factory's billing form has no Nigeria option, and no API key can be created until billing is saved. A participant from an eligible country can register for the hackathon and still be unable to make a single API call. Suggestion: let hackathon or Builder Program credits unlock a key without billing, or add a credits-only account type.
+2. **The billing step blocks the whole console.** After sign-up, the billing form appears before the API keys page, so there is no way to try even the small free trial. Showing the key page first, with usage capped at the trial credit, would let people start building while billing is sorted.
+3. **Model availability differs by route.** Through OpenRouter, Nebius serves Nemotron 3 Nano and Nemotron 3.5 Super VL but not Nemotron 3 Super or Ultra. Matching the catalog across routes, or listing the differences in the docs, would help builders who depend on those routes.
 
 ## License
 
