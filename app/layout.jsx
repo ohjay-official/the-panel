@@ -3,12 +3,11 @@ import Link from 'next/link';
 import Nav from '../components/Nav.jsx';
 import Mark from '../components/Mark.jsx';
 import Preloader from '../components/Preloader.jsx';
-import { Public_Sans, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
-
-// Self-hosted at build time, so visitors' browsers never contact Google.
-const body = Public_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-body', display: 'swap' });
-const display = Space_Grotesk({ subsets: ['latin'], weight: ['500', '600', '700'], variable: '--font-display', display: 'swap' });
-const mono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-mono', display: 'swap' });
+// Fonts ship inside the app bundle (Fontsource), so visitors' browsers never contact Google
+// and the build never depends on Google's font servers.
+import '@fontsource-variable/public-sans';
+import '@fontsource-variable/space-grotesk';
+import '@fontsource-variable/jetbrains-mono';
 
 const SITE = process.env.SITE_URL || 'https://the-panel-eta.vercel.app';
 
@@ -32,7 +31,7 @@ const BOOT = "document.documentElement.classList.add('js');setTimeout(function()
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${body.variable} ${display.variable} ${mono.variable}`} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: BOOT }} />
       </head>

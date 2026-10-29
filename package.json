@@ -12,7 +12,10 @@
   "dependencies": {
     "next": "^15.5.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "@fontsource-variable/public-sans": "^5.0.0",
+    "@fontsource-variable/space-grotesk": "^5.0.0",
+    "@fontsource-variable/jetbrains-mono": "^5.0.0"
   },
   "engines": {
     "node": ">=20"
