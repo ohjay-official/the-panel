@@ -187,7 +187,7 @@ export default function PanelApp() {
   return (
     <>
       <div className="tool-head">
-        <h1 style={{ fontSize: 'clamp(32px, 4.6vw, 46px)' }}>Score a project</h1>
+        <h1 style={{ fontSize: 'clamp(36px, 5vw, 56px)' }}>Score a project</h1>
         <p>Paste the event link and tell the panel what you built. A run takes a few minutes. Nothing you enter is saved.</p>
       </div>
 
@@ -607,7 +607,12 @@ function JudgeNote({ j, running }) {
         <div className="role">
           {j.title}, {j.company}
         </div>
-        {r && !r.error && <div style={{ marginTop: 6, fontWeight: 800, fontSize: 28, color: 'var(--blue)' }}>{r.overall}<span className="faint" style={{ fontSize: 15, fontWeight: 600 }}> / 10 overall</span></div>}
+        {r && !r.error && (
+          <div className="overall-score">
+            {r.overall}
+            <span> / 10 overall</span>
+          </div>
+        )}
       </div>
       <div>
         {!p && running && <p className="faint">Researching this judge…</p>}

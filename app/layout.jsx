@@ -3,10 +3,12 @@ import Link from 'next/link';
 import Nav from '../components/Nav.jsx';
 import Mark from '../components/Mark.jsx';
 import Preloader from '../components/Preloader.jsx';
-import { Public_Sans } from 'next/font/google';
+import { Public_Sans, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
 
 // Self-hosted at build time, so visitors' browsers never contact Google.
-const font = Public_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], variable: '--font-sans', display: 'swap' });
+const body = Public_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-body', display: 'swap' });
+const display = Space_Grotesk({ subsets: ['latin'], weight: ['500', '600', '700'], variable: '--font-display', display: 'swap' });
+const mono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-mono', display: 'swap' });
 
 const SITE = process.env.SITE_URL || 'https://the-panel-eta.vercel.app';
 
@@ -22,15 +24,20 @@ export const metadata = {
   },
 };
 
-export const viewport = { width: 'device-width', initialScale: 1, themeColor: '#eef1ef' };
+export const viewport = { width: 'device-width', initialScale: 1, themeColor: '#0b0f0e' };
+
+// Runs before paint: marks that JavaScript is on (so scroll reveals can start hidden),
+// and after the intro has played, lets later in-site visits skip the intro delay.
+const BOOT = "document.documentElement.classList.add('js');setTimeout(function(){document.documentElement.setAttribute('data-loaded','1')},1800)";
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={font.variable} suppressHydrationWarning>
+    <html lang="en" className={`${body.variable} ${display.variable} ${mono.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: BOOT }} />
+      </head>
       <body>
         <Preloader />
-        {/* After the intro has played, later in-site visits to the home page skip the intro delay. */}
-        <script dangerouslySetInnerHTML={{ __html: "setTimeout(function(){document.documentElement.setAttribute('data-loaded','1')},1600)" }} />
         <a className="visually-hidden" href="#main">
           Skip to content
         </a>
@@ -48,19 +55,23 @@ export default function RootLayout({ children }) {
         </main>
         <footer className="site-footer">
           <div className="wrap">
-            <div className="foot-links">
-              <Link href="/panel">Score a project</Link>
-              <Link href="/method">Method</Link>
-              <Link href="/privacy">Privacy policy</Link>
-              <Link href="/terms">Terms and conditions</Link>
-              <a href="https://github.com/ohjay-official/the-panel">Source code</a>
+            <div className="foot-top">
+              <Link href="/" className="brand">
+                <Mark />
+                The Panel
+              </Link>
+              <div className="foot-links">
+                <Link href="/panel">Score a project</Link>
+                <Link href="/method">Method</Link>
+                <Link href="/privacy">Privacy policy</Link>
+                <Link href="/terms">Terms and conditions</Link>
+                <a href="https://github.com/ohjay-official/the-panel">Source code</a>
+              </div>
             </div>
-            <p style={{ margin: 0 }}>
+            <p className="foot-copy">
               Built by <a href="https://x.com/Oh_Jay0">Oh-Jay</a> for the Nebius x NVIDIA Global AI Hackathon, 2026. Open source under the MIT license.
             </p>
-            <p style={{ margin: 0 }} className="faint">
-              Judge profiles are simulations based on public professional information. The people named are not involved with this site and have not endorsed it.
-            </p>
+            <p className="foot-copy">Judge profiles are simulations based on public professional information. The people named are not involved with this site and have not endorsed it.</p>
           </div>
         </footer>
       </body>

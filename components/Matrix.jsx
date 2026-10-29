@@ -1,13 +1,13 @@
 // Judges as rows, the event's own criteria as columns. Empty cells are hatched until a judge reports.
 
-// Blend white toward marking blue as the score rises, so the grid reads at a glance.
+// Cells warm from graphite toward green as the score rises, so the grid reads at a glance.
 function cellColors(score) {
   const s = Math.max(0, Math.min(10, Number(score) || 0));
-  const t = 0.12 + (s / 10) * 0.88;
-  const from = [255, 255, 255];
-  const to = [31, 63, 191];
+  const t = 0.1 + (s / 10) * 0.9;
+  const from = [24, 32, 29];
+  const to = [118, 185, 0];
   const rgb = from.map((f, i) => Math.round(f + (to[i] - f) * t));
-  return { '--cell': `rgb(${rgb.join(',')})`, '--cell-ink': s >= 5 ? '#ffffff' : '#1c2522' };
+  return { '--cell': `rgb(${rgb.join(',')})`, '--cell-ink': s >= 6 ? '#0b0f0e' : '#e8edea' };
 }
 
 export default function Matrix({ criteria = [], rows = [], caption, showOverall = true }) {

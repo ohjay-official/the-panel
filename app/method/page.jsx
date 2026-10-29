@@ -11,13 +11,42 @@ export const metadata = {
 export default function Method() {
   const viaOpenRouter = PROVIDER === 'openrouter';
   return (
-    <article className="prose" style={{ paddingTop: 48 }}>
-      <h1 style={{ fontSize: 'clamp(32px, 4.6vw, 46px)', marginBottom: 16 }}>Method</h1>
-      <p className="muted" style={{ fontSize: 19 }}>
-        What happens during a run, which model does each part, and the limits you should keep in mind when reading a scorecard.
-      </p>
-
-      <h2>The steps in a run</h2>
+    <article>
+      <div className="page-head">
+        <h1>Method</h1>
+        <p>What happens during a run, which model does each part, and the limits to keep in mind when you read a scorecard.</p>
+      </div>
+      <div className="doc-layout" style={{ marginTop: 40 }}>
+        <nav className="toc" aria-label="On this page">
+          <ol>
+            <li>
+              <a href="#the-steps-in-a-run">The steps in a run</a>
+            </li>
+            <li>
+              <a href="#which-model-does-what">Which model does what</a>
+            </li>
+            <li>
+              <a href="#web-data">Web data</a>
+            </li>
+            <li>
+              <a href="#how-scores-are-set">How scores are set</a>
+            </li>
+            <li>
+              <a href="#cost-tracking">Cost tracking</a>
+            </li>
+            <li>
+              <a href="#limits">Limits</a>
+            </li>
+            <li>
+              <a href="#judges-and-privacy">Judges and privacy</a>
+            </li>
+            <li>
+              <a href="#source-code">Source code</a>
+            </li>
+          </ol>
+        </nav>
+        <div className="prose">
+      <h2 id="the-steps-in-a-run" style={{ marginTop: 0 }}>The steps in a run</h2>
       <ol>
         <li>
           <strong>Read the event.</strong> Tavily extracts the page you paste. A small model pulls out the rules, tracks, judging criteria, prizes and judges. If the page lists no judges or criteria, the tool crawls the rest of the site for them.
@@ -39,7 +68,7 @@ export default function Method() {
         </li>
       </ol>
 
-      <h2>Which model does what</h2>
+      <h2 id="which-model-does-what">Which model does what</h2>
       <p>
         All model calls go to NVIDIA Nemotron models served by Nebius Token Factory.
         {viaOpenRouter
@@ -79,7 +108,7 @@ export default function Method() {
         The small model handles high-volume reading and extraction. The mid-size model handles reasoning with tool calls. The moderator step is the only one that has to weigh every other output at once, so it gets the strongest model available.
       </p>
 
-      <h2>Web data</h2>
+      <h2 id="web-data">Web data</h2>
       <p>Tavily supplies every piece of outside information:</p>
       <ul>
         <li>
@@ -93,17 +122,17 @@ export default function Method() {
         </li>
       </ul>
 
-      <h2>How scores are set</h2>
+      <h2 id="how-scores-are-set">How scores are set</h2>
       <p>
         Judges are told to score only what is shown, not what is promised, and to use a fixed scale: 5 is a typical entry, 7 is strong, 8 is a finalist, and 9 or 10 is rare. The moderator’s score out of 100 is its own judgment after reading the panel, not an average.
       </p>
 
-      <h2>Cost tracking</h2>
+      <h2 id="cost-tracking">Cost tracking</h2>
       <p>
         Every model call records its input and output tokens and its time. Cost is tokens multiplied by the per-token prices in the table above. The receipt at the end of a run also shows what the same run would cost if every call used the most expensive tier, so the saving from routing is visible.
       </p>
 
-      <h2>Limits</h2>
+      <h2 id="limits">Limits</h2>
       <ul>
         <li>The judges are simulations built from public information. A real panel can and will disagree.</li>
         <li>Judges with little public work get thin profiles. Those are marked as relying on the role.</li>
@@ -112,15 +141,17 @@ export default function Method() {
         <li>It only reads what you give it. Private repos and missing descriptions lead to low scores.</li>
       </ul>
 
-      <h2>Judges and privacy</h2>
+      <h2 id="judges-and-privacy">Judges and privacy</h2>
       <p>
         Profiles use only public, professional information and are shown with their sources. You can switch to roles instead of names before a run. Nothing from a run is stored. See the <Link href="/privacy">privacy policy</Link>.
       </p>
 
-      <h2>Source code</h2>
+      <h2 id="source-code">Source code</h2>
       <p>
         The full code is on <a href="https://github.com/ohjay-official/the-panel">GitHub</a> under the MIT license, including the prompts each model receives.
       </p>
+        </div>
+      </div>
     </article>
   );
 }

@@ -7,9 +7,12 @@ export const metadata = {
 
 export default function Terms() {
   return (
-    <article className="prose" style={{ paddingTop: 48 }}>
-      <h1 style={{ fontSize: 'clamp(32px, 4.6vw, 46px)', marginBottom: 12 }}>Terms and conditions</h1>
-      <p className="faint">Last updated 29 October 2026</p>
+    <article>
+      <div className="page-head">
+        <h1>Terms and conditions</h1>
+        <p className="updated">Last updated 29 October 2026</p>
+      </div>
+      <div className="prose" style={{ marginTop: 32 }}>
 
       <p>By using The Panel you agree to these terms. If you don’t agree, please don’t use the site.</p>
 
@@ -60,6 +63,7 @@ export default function Terms() {
       <p>
         Open an issue at <a href="https://github.com/ohjay-official/the-panel/issues">github.com/ohjay-official/the-panel/issues</a>.
       </p>
+      </div>
     </article>
   );
 }
