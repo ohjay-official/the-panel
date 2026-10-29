@@ -248,8 +248,8 @@ export default function Home() {
             Try it on itself →
           </button>
         </div>
-        {cfg && (!cfg.ready.nebius || !cfg.ready.tavily) && (
-          <div className="err">Server is missing {!cfg.ready.nebius ? 'NEBIUS_API_KEY ' : ''}{!cfg.ready.tavily ? 'TAVILY_API_KEY' : ''}.</div>
+        {cfg?.mock && (
+          <div className="hint" style={{ color: 'var(--brass)' }}>Demo mode: running on sample data, no live API calls. Add API keys on the server to go live.</div>
         )}
       </form>
 

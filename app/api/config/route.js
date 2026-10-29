@@ -10,6 +10,6 @@ export async function GET() {
       tavily: !!process.env.TAVILY_API_KEY || process.env.MOCK === '1',
     },
     passcode: !!process.env.RUN_PASSCODE,
-    mock: process.env.MOCK === '1',
+    mock: process.env.MOCK === '1' || !process.env.NEBIUS_API_KEY || !process.env.TAVILY_API_KEY,
   });
 }
