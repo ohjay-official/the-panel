@@ -38,6 +38,13 @@ Every model call goes to **Nebius Token Factory** through its OpenAI-compatible 
 | Mid | `nvidia/nemotron-3-super-120b-a12b` | One agent per judge. Scores against the official criteria and calls the `web_search` tool to check claims or originality. | Built for multi-agent, tool-calling work. The judges run 3 at a time. |
 | Heavy | `nvidia/Nemotron-3-Ultra-550b-a55b` | The moderator. Reconciles the judges, writes the debate, predicts the score and ranks the fixes. | The one step that needs serious reasoning over all the other outputs, so it is the only Ultra call per run. |
 
+**Access note.** Token Factory requires billing details before issuing an API key, and Nigeria (where I live) isn't in its billing country list, so I couldn't get a direct key. The app therefore supports two routes to the same Nebius-hosted models:
+
+- **Direct:** set `NEBIUS_API_KEY` and calls go to `api.tokenfactory.nebius.com`. The model IDs are in the table above.
+- **Via OpenRouter, Nebius-only:** set `OPENROUTER_API_KEY`. Every request is pinned to OpenRouter's **Nebius** provider with `allow_fallbacks: false`, and the app rejects any response not served by Nebius. On this route, the models Nebius serves there are `nvidia/nemotron-3-nano-30b-a3b` (fast tier) and `nvidia/nemotron-3.5-super-vl` (judges and moderator). Ultra isn't offered by Nebius on OpenRouter.
+
+The live demo uses the OpenRouter route. With a direct key, the app switches to the direct route automatically.
+
 Every call is metered: tokens in and out, latency, and cost from the Token Factory per-token price. The **Receipt** panel then compares what you actually paid against what the same run would cost if every call used Ultra.
 
 **Measured on a real run:** _fill in after first live run: total $, Ultra-only $, % saved, seconds end to end_
@@ -69,16 +76,17 @@ Browser ──POST /api/panel──▶ Next.js route (Vercel, streaming NDJSON)
 ## Run it yourself (5 minutes)
 
 1. Get a Nebius Token Factory API key at [tokenfactory.nebius.com](https://tokenfactory.nebius.com) and a Tavily API key at [app.tavily.com](https://app.tavily.com).
-2. Clone the repo and install:
+2. If you can't get billing on Token Factory, use an [OpenRouter](https://openrouter.ai) key instead (`OPENROUTER_API_KEY`). It is pinned to Nebius.
+3. Clone the repo and install:
    ```bash
    git clone https://github.com/ohjay-official/the-panel && cd the-panel
    npm install
    cp .env.example .env.local   # paste your two keys
    npm run dev                  # http://localhost:3000
    ```
-3. To try it with no API calls at all, run `npm run mock`.
+4. To try it with no API calls at all, run `npm run mock`, or just leave the keys out (it falls back to demo mode).
 
-**Deploying to Vercel:** import the repo, then add `NEBIUS_API_KEY` and `TAVILY_API_KEY` as environment variables. No other configuration is needed. The API route allows up to 300 seconds per run.
+**Deploying to Vercel:** import the repo, then add `TAVILY_API_KEY` and either `NEBIUS_API_KEY` or `OPENROUTER_API_KEY` as environment variables. No other configuration is needed. The API route allows up to 300 seconds per run.
 
 **Config:** you can override model IDs (`MODEL_FAST`, `MODEL_MID`, `MODEL_HEAVY`), prices (`PRICE_*`), the rate limit (`RUNS_PER_HOUR`) and an optional `RUN_PASSCODE`. See `.env.example`.
 

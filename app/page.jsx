@@ -494,7 +494,7 @@ export default function Home() {
                   </div>
                   <div className="stat">
                     <div className="v">{usd(cost.ultraOnlyUsd)}</div>
-                    <div className="k">Same run, Ultra only</div>
+                    <div className="k">Same run, top tier only</div>
                   </div>
                   <div className="stat">
                     <div className="v g">{cost.savingsPct}%</div>
@@ -528,7 +528,7 @@ export default function Home() {
         </div>
         {cfg && (
           <div>
-            Models: {Object.values(cfg.tiers).map((t) => t.model).join(' · ')} on Nebius Token Factory. Web data by Tavily.
+            Models: {[...new Set(Object.values(cfg.tiers).map((t) => t.model))].join(' · ')} served by Nebius Token Factory{cfg.provider === 'openrouter' ? ' (routed via OpenRouter, Nebius-only)' : ''}. Web data by Tavily.
           </div>
         )}
       </footer>
