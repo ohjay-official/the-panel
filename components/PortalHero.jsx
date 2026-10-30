@@ -28,7 +28,7 @@ const STATES = [
     facts: [
       ['Studied', 'Past winners from the same organizer'],
       ['MediSimplifier', '1st place, published its full bill: $320'],
-      ['Injester', '1st place, accuracy up from 2 of 5 to 5 of 5'],
+      ['Injester', '1st place, accuracy from 2/5 to 5/5'],
       ['Pattern', 'Real numbers, not promises'],
     ],
   },
@@ -125,8 +125,13 @@ export default function PortalHero() {
       W = r.width; H = r.height; dpr = Math.min(window.devicePixelRatio || 1, 2);
       cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
       cv.style.width = W + 'px'; cv.style.height = H + 'px';
+      // Each scene centres its readable block exactly where the window sits.
+      const pr = portal.current?.getBoundingClientRect();
+      const box = pr && pr.width
+        ? { cx: pr.left - r.left + pr.width / 2, cy: pr.top - r.top + pr.height / 2, w: pr.width, h: pr.height }
+        : { cx: W / 2, cy: H / 2, w: 300, h: 330 };
       scenes = {};
-      for (const k of ['yours', 'event', 'winners', 'judges', 'score', 'fixes']) scenes[k] = renderScene(k, W, H, dpr);
+      for (const k of ['yours', 'event', 'winners', 'judges', 'score', 'fixes']) scenes[k] = renderScene(k, W, H, dpr, box);
     };
     const read = () => {
       const r = el.getBoundingClientRect();
@@ -136,10 +141,17 @@ export default function PortalHero() {
 
     // Draw a scene screen-locked, the full size of the stage.
     const cover = (k) => scenes[k] && ctx.drawImage(scenes[k], 0, 0, W, H);
-    const veil = (a) => {
+    // The page itself: plain paper with a faint ledger grid.
+    const paper = (a) => {
       if (a <= 0) return;
       ctx.fillStyle = `rgba(242,240,236,${a})`;
       ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = `rgba(13,12,11,${0.045 * a})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let x = (W / 2) % 48; x < W; x += 48) { ctx.moveTo(Math.round(x) + 0.5, 0); ctx.lineTo(Math.round(x) + 0.5, H); }
+      for (let y = (H / 2) % 48; y < H; y += 48) { ctx.moveTo(0, Math.round(y) + 0.5); ctx.lineTo(W, Math.round(y) + 0.5); }
+      ctx.stroke();
     };
 
     const draw = (now) => {
@@ -171,8 +183,7 @@ export default function PortalHero() {
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, W, H);
-      cover(STATES[seg].scene);
-      veil(0.94);
+      paper(1);
 
       const nextScene = seg < LAST ? STATES[seg + 1].scene : 'yours';
       const pr = portal.current?.getBoundingClientRect();
@@ -183,7 +194,7 @@ export default function PortalHero() {
         const bw = pr.width + (W - pr.width) * e, bh = pr.height + (H - pr.height) * e;
         const s = e ? 1 : maskScale;
         const w = bw * s, h = bh * s;
-        const R = W < 640 ? 70 : 90;
+        const R = W < 640 ? 44 : 64;
         if (w > 1 && h > 1) {
           const pts = project(roundedRectPoints(w, h, R * (1 - e) * s), cx, cy, rotX * (1 - e), rotY * (1 - e));
           ctx.beginPath();
@@ -201,9 +212,9 @@ export default function PortalHero() {
           ctx.save();
           ctx.clip();
           cover(nextScene);
-          // As the window fills the screen, it takes on the same paper wash as the page,
+          // As the window fills the screen it fades to the page's own paper,
           // so committing to the next stage is seamless.
-          veil(0.94 * ramp(e, 0.55, 1));
+          paper(ramp(e, 0.55, 1));
           ctx.restore();
         }
       }
@@ -254,6 +265,30 @@ export default function PortalHero() {
     };
   }, []);
 
+  // Fit the giant title to the room it has, whatever font actually loaded.
+  const titleRef = useRef(null);
+  const sideRef = useRef(null);
+  useEffect(() => {
+    const fit = () => {
+      const t = titleRef.current;
+      const box = t?.parentElement;
+      if (!t || !box) return;
+      t.style.fontSize = '';
+      const stacked = window.innerWidth <= 640;
+      const side = sideRef.current;
+      const room = box.clientWidth - (stacked || !side ? 0 : side.offsetWidth + 40);
+      const need = t.scrollWidth;
+      if (need > room && room > 0) {
+        const size = parseFloat(getComputedStyle(t).fontSize);
+        t.style.fontSize = `${Math.floor(size * (room / need) * 0.98)}px`;
+      }
+    };
+    fit();
+    document.fonts?.ready?.then(fit);
+    window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
+  }, [current]);
+
   // Scroll to the start of stage i, just after its window has re-opened.
   const goTo = (i) => {
     const el = sec.current;
@@ -291,16 +326,19 @@ export default function PortalHero() {
               </span>
             </div>
             <button className="ph-portal" ref={portal} type="button" onClick={travel} aria-label={current < LAST ? `Go to ${nextTitle}` : 'Score your project'} />
+            <p className="ph-hint">
+              <span className="mouse">{current < LAST ? 'Scroll, or click the window' : 'Click the window to score yours'}</span>
+              <span className="touch">{current < LAST ? 'Scroll, or tap the window' : 'Tap the window to score yours'}</span>
+            </p>
           </div>
 
           <div className="ph-content" key={`c${current}`}>
-            <h2 className="ph-title" aria-hidden={s.intro ? 'true' : undefined}>
+            <h2 className="ph-title" ref={titleRef} aria-hidden={s.intro ? 'true' : undefined}>
               {s.title}
             </h2>
             {s.intro ? (
-              <div className="ph-intro">
-                <p className="ph-eyebrow">Built for the Nebius x NVIDIA Global AI Hackathon</p>
-                <h1>See your score before the judges do.</h1>
+              <div className="ph-intro" ref={sideRef}>
+                                <h1>See your score before the judges do.</h1>
                 <p className="ph-sub">Paste a hackathon link and your project. The Panel studies the judges and past winners, then scores you on the event’s real criteria.</p>
                 <div className="ph-actions">
                   <Link href="/panel" className="btn btn-lg">
@@ -312,7 +350,7 @@ export default function PortalHero() {
                 </div>
               </div>
             ) : (
-              <dl className="ph-facts">
+              <dl className="ph-facts" ref={sideRef}>
                 {s.facts.map(([k, v], i) => (
                   <div className="ph-fact" key={k} style={{ '--i': i }}>
                     <dt>{k}</dt>
@@ -323,9 +361,6 @@ export default function PortalHero() {
             )}
           </div>
         </div>
-        <p className="scroll-cue" aria-hidden="true" style={{ opacity: current === 0 ? undefined : 0 }}>
-          Scroll, or open the window
-        </p>
       </div>
     </section>
   );
