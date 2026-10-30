@@ -45,6 +45,8 @@ Token Factory asks for billing details before it issues an API key, and Nigeria,
 
 With a direct key set, the app uses the direct route automatically.
 
+**Status at submission:** I could not get a key by either route before the deadline. Token Factory has no billing option for Nigeria, and OpenRouter sign-up failed its bot check from my network. So the live demo runs in **sample mode**: the full pipeline, streaming interface and cost receipt run on built-in placeholder data, and every result is labelled as a sample. Add either key in Vercel and the same deployment runs live on Nemotron with no code changes.
+
 ## The site
 
 | Page | What it is |
