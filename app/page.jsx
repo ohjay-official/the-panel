@@ -2,6 +2,7 @@ import Link from 'next/link';
 import PortalHero from '../components/PortalHero.jsx';
 import JudgesBand from '../components/JudgesBand.jsx';
 import Reveal from '../components/Reveal.jsx';
+import Faq from '../components/Faq.jsx';
 
 export default function Home() {
   return (
@@ -52,6 +53,8 @@ export default function Home() {
           It’s a second opinion, not a verdict. The judges are simulations built from public information, and real panels disagree. <Link href="/method">Read how it works and where it falls short.</Link>
         </p>
       </Reveal>
+
+      <Faq />
 
       <Reveal className="cta-band">
         <div>

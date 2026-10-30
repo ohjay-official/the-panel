@@ -159,15 +159,15 @@ export default function PortalHero() {
       last = now;
       // Ease the drawn position toward the scroll position instead of snapping to it.
       const gap = target - at;
-      at = Math.abs(gap) > 0.0004 ? at + gap * 0.115 : target;
-      rotX += (tX - rotX) * Math.min(1, dt * 0.009);
-      rotY += (tY - rotY) * Math.min(1, dt * 0.009);
+      at = Math.abs(gap) > 0.0004 ? at + gap * 0.08 : target;
+      rotX += (tX - rotX) * Math.min(1, dt * 0.0063);
+      rotY += (tY - rotY) * Math.min(1, dt * 0.0063);
 
       const f = at * UNITS;
       const seg = Math.min(Math.floor(f), LAST);
       const frac = f - seg;
       const e = seg < LAST ? ramp(frac, 0.45, 1) : 0;
-      const reopen = seg > 0 ? ramp(frac, 0, 0.16) : 1;
+      const reopen = seg > 0 ? ramp(frac, 0, 0.2) : 1;
       const maskScale = Math.min(intro, reopen);
 
       if (seg !== live.current.current) {
@@ -233,7 +233,7 @@ export default function PortalHero() {
       setReady(true);
       const t0 = performance.now();
       const step = (now) => {
-        const t = clamp((now - t0) / 1050, 0, 1);
+        const t = clamp((now - t0) / 1365, 0, 1);
         intro = easeInOutCubic(t);
         if (t < 1) requestAnimationFrame(step);
       };
@@ -295,7 +295,7 @@ export default function PortalHero() {
     if (!el) return;
     const top = el.getBoundingClientRect().top + window.scrollY;
     const span = el.offsetHeight - window.innerHeight;
-    window.scrollTo({ top: top + span * ((i + (i ? 0.18 : 0)) / UNITS), behavior: 'smooth' });
+    window.scrollTo({ top: top + span * ((i + (i ? 0.22 : 0)) / UNITS), behavior: "smooth" });
   };
   const travel = () => (current < LAST ? goTo(current + 1) : router.push('/panel'));
 
