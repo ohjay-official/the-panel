@@ -7,6 +7,7 @@ import Preloader from '../components/Preloader.jsx';
 // and the build never depends on Google's font servers.
 import '@fontsource-variable/inter-tight';
 import '@fontsource-variable/jetbrains-mono';
+import '@fontsource/bebas-neue';
 
 const SITE = process.env.SITE_URL || 'https://the-panel-eta.vercel.app';
 

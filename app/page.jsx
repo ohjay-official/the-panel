@@ -1,13 +1,12 @@
 import Link from 'next/link';
-import ScrubHero from '../components/ScrubHero.jsx';
-import HowItWorks from '../components/HowItWorks.jsx';
+import PortalHero from '../components/PortalHero.jsx';
 import JudgesBand from '../components/JudgesBand.jsx';
 import Reveal from '../components/Reveal.jsx';
 
 export default function Home() {
   return (
     <>
-      <ScrubHero />
+      <PortalHero />
 
       <Reveal className="runs-on" aria-label="What The Panel runs on">
         <div>
@@ -27,14 +26,6 @@ export default function Home() {
       <div className="section">
         <JudgesBand />
       </div>
-
-      <Reveal className="section">
-        <div className="section-head">
-          <h2>One run, five steps</h2>
-          <p>Tap a step, or let it play through.</p>
-        </div>
-        <HowItWorks />
-      </Reveal>
 
       <Reveal className="section">
         <div className="section-head">

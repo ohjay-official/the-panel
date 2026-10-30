@@ -14,7 +14,8 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "@fontsource-variable/jetbrains-mono": "^5.0.0",
-    "@fontsource-variable/inter-tight": "^5.0.0"
+    "@fontsource-variable/inter-tight": "^5.0.0",
+    "@fontsource/bebas-neue": "^5.0.0"
   },
   "engines": {
     "node": ">=20"
